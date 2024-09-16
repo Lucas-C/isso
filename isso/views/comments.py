@@ -1,6 +1,7 @@
 # -*- encoding: utf-8 -*-
 
 import collections
+import os
 import re
 import time
 import functools
@@ -349,11 +350,15 @@ class API(object):
         with self.isso.lock:
             if uri not in self.threads:
                 if not data.get('title'):
-                    with http.curl('GET', local("origin"), uri) as resp:
+                    origin = local("origin")
+                    # Lucas (2024/09/16) : allowing to overide host origin due to my server setup
+                    if 'CONTAINER_IP' in os.environ:
+                        origin = 'http://' + os.environ['CONTAINER_IP']
+                    with http.curl('GET', origin, uri) as resp:
                         if resp and resp.status == 200:
                             uri, title = parse.thread(resp.read(), id=uri)
                         else:
-                            return NotFound('URI does not exist %s')
+                            return NotFound(f'URI {uri} does not exist')
                 else:
                     title = data['title']
 
