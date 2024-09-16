@@ -223,6 +223,9 @@ class API(object):
         if len(comment["text"]) > 65535:
             return False, "text is too long (maximum length: 65535)"
 
+        if "https://" in comment["text"] or "http://" in comment["text"]:
+            return False, "URLs are currently forbidden in the comment text, to prevent spam"
+
         if len(comment.get("email") or "") > 254:
             return False, "http://tools.ietf.org/html/rfc5321#section-4.5.3"
 
